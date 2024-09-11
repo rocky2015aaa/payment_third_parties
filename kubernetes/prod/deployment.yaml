@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-gateway
+  template:
+    metadata:
+      labels:
+        app: payment-gateway
+    spec:
+      containers:
+      - name: payment-gateway
+        image: gcr.io/prefab-glazing-313711/github.com/parkloyaltyengineering/prod/payment-gateway
+        command: ['uvicorn', 'app.main:app', '--host', '0.0.0.0', '--port', '8000']
+        envFrom:
+        - secretRef:
+            name: global-secrets-prod
+        - configMapRef:
+            name: service-urls-prod
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            memory: "256Mi"
+            cpu: "1"
